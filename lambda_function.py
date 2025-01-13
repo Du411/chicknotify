@@ -53,6 +53,27 @@ class JobDetail(BaseModel):
     job_time: Optional[str]
     created_at: datetime
 
+class RedisClient:
+    def __init__(self):
+        self.redis_client = redis.Redis(
+            host=REDIS_SERVER,
+            port=REDIS_PORT,
+            password=REDIS_PASSWORD,
+            decode_responses=True
+        )
+    
+    def exists(self, key: str) -> bool:
+        return self.redis_client.exists(key)
+        
+    def set(self, key: str, value: str, ex: int = None):
+        return self.redis_client.set(key, value, ex=ex)
+        
+    def get(self, key: str) -> str:
+        return self.redis_client.get(key)
+        
+    def publish(self, channel: str, message: str):
+        return self.redis_client.publish(channel, message)
+
 def parse_work_time(soup: BeautifulSoup) -> Optional[str]:
     work_time_section = soup.find("section", class_="job-work_time")
     if work_time_section:
@@ -127,11 +148,15 @@ def scrape_chickpt(limit: int = 1) -> List[JobDetail]:
 
 def save_jobs(db: Session, jobs: List[JobDetail]) -> bool:
     try:
+        redis_client = RedisClient()
         new_jobs=[]
         for job in jobs:
+            if redis_client.exists(f"job_url:{job.url}"):
+                continue
             existing_job = db.query(Job).filter(Job.url == job.url).first()
             if existing_job:
-                return False
+                redis_client.set(f"job_url:{job.url}", "1", ex=86400)
+                continue
             new_job = Job(
                 title=job.title,
                 employer=job.employer,
@@ -144,23 +169,20 @@ def save_jobs(db: Session, jobs: List[JobDetail]) -> bool:
             )
             db.add(new_job)
             new_jobs.append(new_job)
-        db.commit()
-        publish_new_jobs(new_jobs)
-        return True
+            redis_client.set(f"job_url:{job.url}", "1", ex=86400)
+        print(f"new_jobs: {new_jobs}")
+        if new_jobs:
+            db.commit()
+            publish_new_jobs(new_jobs, redis_client)
+            return True
+        return False
     except Exception as e:
         db.rollback()
         print(f"Error saving jobs: {str(e)}")
         return False
 
-def publish_new_jobs(jobs: List[JobDetail]):
+def publish_new_jobs(jobs: List[Job], redis_client: RedisClient):
     try:
-        redis_client = redis.Redis(
-            host=REDIS_SERVER,
-            port=REDIS_PORT,
-            password=REDIS_PASSWORD.get_secret_value(),
-            decode_responses=True
-        )
-        
         for job in jobs:
             job_data = {
                 "title": job.title,
@@ -172,7 +194,6 @@ def publish_new_jobs(jobs: List[JobDetail]):
                 "time": job.time
             }
             redis_client.publish('new_job', json.dumps(job_data))
-            
     except Exception as e:
         print(f"Redis publish error: {str(e)}")
 
