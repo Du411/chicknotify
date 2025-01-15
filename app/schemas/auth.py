@@ -2,6 +2,22 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
+class UserRegister(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
+    telegram_id: Optional[str] = None
+    discord_id: Optional[str] = None
+    notification_type_id: int
+
+class UserUpdate(BaseModel):
+    email: EmailStr
+    password: Optional[str] = None
+    old_password: Optional[str] = None
+    telegram_id: Optional[str] = None
+    discord_id: Optional[str] = None
+    notification_type_id: int
+
 class TokenSchema(BaseModel):
     access_token: str
     token_type: str
@@ -9,14 +25,6 @@ class TokenSchema(BaseModel):
 class UserLogin(BaseModel):
     username: str
     password: str
-
-class UserData(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
-    telegram_id: Optional[str] = None
-    discord_id: Optional[str] = None
-    notification_type_id: int
 
 class UserResponse(BaseModel):
     id: int

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.schemas.auth import TokenSchema, UserLogin, UserData, UserProfile
+from app.schemas.auth import TokenSchema, UserLogin, UserRegister, UserUpdate, UserProfile
 from app.db.base import get_db
 from app.services.user_service import UserService
 from app.dependencies.auth import get_current_user
@@ -12,7 +12,7 @@ def get_user_service(db: Session = Depends(get_db)) -> UserService:
 
 @router.post("/api/user/register", response_model=dict)
 async def register_user(
-    user_data: UserData, 
+    user_data: UserRegister, 
     user_service: UserService = Depends(get_user_service)
 ):
     return user_service.register_user(user_data)
@@ -26,7 +26,7 @@ async def login(
 
 @router.put("/api/user/update", response_model=dict)
 async def update_user(
-    user_data: UserData,  
+    user_data: UserUpdate,  
     user_service: UserService = Depends(get_user_service),
     current_user: int = Depends(get_current_user)
 ):
