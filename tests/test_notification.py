@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime
-from app.db.base import get_db
+from app.dependencies.database import get_db
 from app.models.jobs import Job
 from app.services.notifications.email import EmailNotification
 from app.models.users import User

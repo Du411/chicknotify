@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from app.db.base import get_db
-from app.services.job_service import JobService
-from app.dependencies.auth import get_current_user
 from typing import List
+from sqlalchemy.orm import Session
+from app.dependencies.database import get_db
+from app.dependencies.auth import get_current_user
 from app.schemas.job import JobResponse
+from app.services.job_service import JobService
 
 router = APIRouter()
 

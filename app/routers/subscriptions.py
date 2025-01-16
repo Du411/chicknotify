@@ -1,6 +1,9 @@
+#app/dependencies/subscripitons.py
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.db.base import get_db
+from app.dependencies.database import get_db
+from app.dependencies.redis import get_redis
 from app.services.subscription_service import SubscriptionService
 from app.services.keyword_ranking_service import KeywordRankingService
 from app.schemas.subscription import SubscriptionCreate, SubscriptionResponse, KeywordRankingResponse
@@ -9,11 +12,11 @@ from typing import List
 
 router = APIRouter()
 
-def get_subscription_service(db: Session = Depends(get_db)) -> SubscriptionService:
-    return SubscriptionService(db)
+def get_subscription_service(db: Session = Depends(get_db), redis = Depends(get_redis)) -> SubscriptionService:
+    return SubscriptionService(db, redis)
 
-def get_ranking_service(db: Session = Depends(get_db)) -> KeywordRankingService:
-    return KeywordRankingService(db)
+def get_ranking_service(db: Session = Depends(get_db), redis = Depends(get_redis)) -> KeywordRankingService:
+    return KeywordRankingService(db, redis)
 
 @router.post("/api/keywords/addKeyword", response_model=dict)
 async def create_keyword_subscription(

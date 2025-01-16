@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.sql import func
-from app.db.base import Base
+from app.dependencies.database import Base
 
 
 class Job(Base):

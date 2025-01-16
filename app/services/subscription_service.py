@@ -4,11 +4,12 @@ from app.models.subscription_items import SubscriptionItem
 from app.models.user_subscriptions import UserSubscription
 from typing import List
 from app.services.keyword_ranking_service import KeywordRankingService
+from redis import Redis
 
 class SubscriptionService:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, redis: Redis):
         self.db = db
-        self.ranking_service = KeywordRankingService(db)
+        self.ranking_service = KeywordRankingService(db, redis)
 
     async def create_subscription(self, user_id: int, keyword: str):
         try:

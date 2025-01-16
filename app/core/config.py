@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     REDIS_SERVER: str
     REDIS_PORT: int
     REDIS_PASSWORD: SecretStr
+    REDIS_POOL_SIZE: int
 
     # JWT settings
     JWT_SECRET_KEY: str

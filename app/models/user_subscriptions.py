@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, ForeignKey
-from app.db.base import Base
-
+from app.dependencies.database import Base
 class UserSubscription(Base):
     __tablename__ = "user_subscriptions"
 

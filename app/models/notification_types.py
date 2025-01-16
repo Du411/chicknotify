@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from app.db.base import Base
+from app.dependencies.database import Base
 
 class NotificationType(Base):
     __tablename__ = "notification_types"

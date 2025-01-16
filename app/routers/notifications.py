@@ -2,15 +2,16 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
 
-from app.db.base import get_db
+from app.dependencies.database import get_db
+from app.dependencies.redis import get_redis
 from app.services.notification_service import NotificationService
 from app.schemas.notification import NotificationHistoryResponse, NotificationTypeResponse
 from app.dependencies.auth import get_current_user
 
 router = APIRouter()
 
-def get_notification_service(db: Session = Depends(get_db)) -> NotificationService:
-    return NotificationService(db)
+def get_notification_service(db: Session = Depends(get_db), redis = Depends(get_redis)) -> NotificationService:
+    return NotificationService(db, redis)
 
 @router.get("/api/notifications/history", response_model=List[NotificationHistoryResponse], tags=["notifications"])
 async def get_user_notifications(

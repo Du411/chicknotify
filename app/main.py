@@ -2,20 +2,21 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import users, subscriptions, jobs, notifications
-from app.db.base import get_db
-from app.services.redis_service import RedisService
+from app.dependencies.database import get_db
+from app.dependencies.redis import get_redis, close_connection
 from app.services.notification_service import NotificationService
+from app.dependencies.redis import subscribe
 import asyncio
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     db = next(get_db())
-    notification_service = NotificationService(db)
-    redis_service = RedisService()
+    redis = get_redis()
+    notification_service = NotificationService(db, redis)
     
     task = asyncio.create_task(
         asyncio.to_thread(
-            redis_service.subscribe,
+            subscribe,
             'new_jobs',
             notification_service.process_job
         )
@@ -30,8 +31,10 @@ async def lifespan(app: FastAPI):
         await task
     except asyncio.CancelledError:
         pass
-    redis_service.close()
+    
+    print("Closing resources...")
     db.close()
+    close_connection()
 
 app = FastAPI(lifespan=lifespan)
 

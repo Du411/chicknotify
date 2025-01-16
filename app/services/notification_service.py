@@ -10,11 +10,12 @@ from app.services.notifications.discord import DiscordNotification
 from app.services.notifications.telegram import TelegramNotification
 from app.models.notification_types import NotificationType
 from app.schemas.notification import NotificationTypeResponse
+from redis import Redis
 
 class NotificationService:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, redis: Redis):
         self.db = db
-        self.subscription_service = SubscriptionService(db)
+        self.subscription_service = SubscriptionService(db, redis)
         self.user_service = UserService(db)
         self.strategies = {
             'Email': EmailNotification(db),

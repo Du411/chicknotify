@@ -1,13 +1,11 @@
-# app/services/test_scraper.py
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
 import json
 from dotenv import load_dotenv
 from app.services.scraper_service import scrape_chickpt
-from app.services.redis_service import RedisService
 from app.repositories.job_repository import JobRepository
+from app.dependencies.redis import redis
 
 load_dotenv()
 
@@ -25,8 +23,6 @@ DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_SERVER}:{DB_PORT}/{DB_
 
 def test_publish_new_jobs(jobs):
     try:
-        r= RedisService()
-        redis_client = r.redis_client
         print(jobs)
         for job in jobs:
             job_data = {
@@ -38,7 +34,7 @@ def test_publish_new_jobs(jobs):
                 "url": job.url,
                 "time": job.job_time
             }
-            redis_client.publish('new_jobs', json.dumps(job_data))
+            redis.publish('new_jobs', json.dumps(job_data))
             print(f"Published job: {job.title}")
             
     except Exception as e:

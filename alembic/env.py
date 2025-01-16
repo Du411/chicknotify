@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 from app.core.config import settings
-from app.db.base import Base
+from app.dependencies.database import Base
 from app.models import users, jobs, subscription_items, user_subscriptions, notifications, notification_types
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
