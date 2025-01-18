@@ -1,4 +1,5 @@
 from typing import List
+from redis import Redis
 from sqlalchemy.orm import Session
 from app.services.subscription_service import SubscriptionService
 from app.services.user_service import UserService
@@ -10,7 +11,7 @@ from app.services.notifications.discord import DiscordNotification
 from app.services.notifications.telegram import TelegramNotification
 from app.models.notification_types import NotificationType
 from app.schemas.notification import NotificationTypeResponse
-from redis import Redis
+from app.core.logger import logger
 
 class NotificationService:
     def __init__(self, db: Session, redis: Redis):
@@ -65,9 +66,9 @@ class NotificationService:
                     
                     notified_users.add(user_id)
             
-            print(f"notified_users: {notified_users}")
+            logger.info(f"notified_users: {notified_users}")
         except Exception as e:
-            print(f"Error processing job: {e}")
+            logger.error(f"Error processing job: {e}")
 
     async def get_user_notification_history(self, user_id: int) -> List[NotificationHistoryResponse]:
         notifications = self.db.query(

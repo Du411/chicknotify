@@ -4,6 +4,7 @@ from app.dependencies.database import get_db
 from app.models.jobs import Job
 from app.services.notifications.email import EmailNotification
 from app.models.users import User
+from app.core.logger import logger
 
 async def test_email_notification():
     db = next(get_db())
@@ -26,10 +27,10 @@ async def test_email_notification():
             job=test_job,
         )
         
-        print(f"mail sent to: {test_user.email} successfully")
+        logger.info(f"mail sent to: {test_user.email} successfully")
         
     except Exception as e:
-        print(f"error: {str(e)}")
+        logger.error(f"error: {str(e)}")
     finally:
         db.close()
 

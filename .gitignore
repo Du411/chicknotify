@@ -6,3 +6,4 @@ pycache/
 package_for_aws_lambda/
 package_for_aws_lambda
 lambda_function.zip
+logs/

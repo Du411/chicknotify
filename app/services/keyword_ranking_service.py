@@ -3,6 +3,7 @@ from sqlalchemy import func, text
 from fastapi import HTTPException, status
 from app.models.subscription_items import SubscriptionItem
 from app.models.user_subscriptions import UserSubscription
+from app.core.logger import logger
 from redis import Redis
 from typing import List
 
@@ -18,7 +19,7 @@ class KeywordRankingService:
         try:
             self.redis.zincrby(POPULAR_KEYWORDS_SORTED_SET, 1, keyword)
         except Exception as e:
-            print(f"Error updating keyword score: {e}")
+            logger.error(f"Error updating keyword score: {e}")
 
     async def decrease_keyword_score(self, keyword: str):
         try:
@@ -27,7 +28,7 @@ class KeywordRankingService:
             if score <= 0:
                 self.redis.zrem(POPULAR_KEYWORDS_SORTED_SET, keyword)
         except Exception as e:
-            print(f"Error decreasing keyword score: {e}")
+            logger.error(f"Error decreasing keyword score: {e}")
 
     async def get_popular_keywords(self, limit: int = 10) -> List[dict]:
         try:
@@ -73,6 +74,7 @@ class KeywordRankingService:
             return result
 
         except Exception as e:
+            logger.error(f"Error getting popular keywords: {e}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=str(e)

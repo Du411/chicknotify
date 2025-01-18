@@ -2,6 +2,7 @@ import json
 import asyncio
 from redis import Redis, ConnectionPool
 from app.core.config import settings
+from app.core.logger import logger
 
 pool = ConnectionPool(
     host=settings.REDIS_SERVER,
@@ -34,7 +35,7 @@ def update_latest_jobs_cache(new_job_data: dict, max_jobs: int = 10):
         redis_client.set('latest_jobs', json.dumps(jobs_list))
         
     except Exception as e:
-        print(f"Error updating cache: {str(e)}")
+        logger.error(f"Error updating cache: {str(e)}")
 
 def subscribe(channel: str, message_handler):
     try:
@@ -46,7 +47,7 @@ def subscribe(channel: str, message_handler):
                 try:
                     update_latest_jobs_cache(message['data'])
                     data = json.loads(message['data'])
-                    print(f"receive new job: {data['title']}")
+                    logger.info(f"receive new job: {data['title']}")
                     async def run_handler():
                         await message_handler(data)
                     
@@ -58,10 +59,10 @@ def subscribe(channel: str, message_handler):
                         loop.close()
                         
                 except Exception as e:
-                    print(f"Error processing message: {e}")
+                    logger.error(f"Error processing message: {e}")
                     
     except Exception as e:
-        print(f"Redis subscribe error: {str(e)}")
+        logger.error(f"Redis subscribe error: {str(e)}")
 
 def close_connection():
     pool.close()

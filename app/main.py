@@ -3,9 +3,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import users, subscriptions, jobs, notifications
 from app.dependencies.database import get_db
-from app.dependencies.redis import get_redis, close_connection
+from app.dependencies.redis import get_redis, close_connection, subscribe
 from app.services.notification_service import NotificationService
-from app.dependencies.redis import subscribe
+from app.core.logger import logger
 import asyncio
 
 @asynccontextmanager
@@ -22,17 +22,17 @@ async def lifespan(app: FastAPI):
         )
     )
     
-    print("Application startup complete")
+    logger.info("Application startup complete")
     yield
     
-    print("Shutting down...")
+    logger.info("Shutting down...")
     task.cancel()
     try:
         await task
     except asyncio.CancelledError:
         pass
     
-    print("Closing resources...")
+    logger.info("Closing resources...")
     db.close()
     close_connection()
 

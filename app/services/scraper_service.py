@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List, Tuple, Optional
 from bs4 import BeautifulSoup
 from pydantic import BaseModel
-
+from app.core.logger import logger
 import urllib3 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -49,7 +49,7 @@ def get_job_details(job_url: str) -> Tuple[Optional[str], Optional[str]]:
 
         return job_content, job_time
     except Exception as e:
-        print(f"Error fetching job details: {str(e)}")
+        logger.error(f"Error fetching job details: {str(e)}")
         return None, None
 
 
@@ -92,7 +92,7 @@ async def scrape_chickpt(limit: int) -> List[JobDetail]:
                         created_at=datetime.now(),
                     )
                 )
-        print(f"Successfully scraped {len(data)} jobs")
+        logger.info(f"Successfully scraped {len(data)} jobs")
         return data
     except Exception as e:
-        print(f"Error scraping chickpt: {str(e)}")
+        logger.error(f"Error scraping chickpt: {str(e)}")
