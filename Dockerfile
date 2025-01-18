@@ -11,9 +11,14 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+
+RUN mkdir -p /app/logs
+
 RUN chmod +x start.sh
 
 ENV PYTHONPATH=/app
+
+ENV TZ=Asia/Taipei
 
 EXPOSE 8000
 
