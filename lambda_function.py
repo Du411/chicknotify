@@ -168,6 +168,8 @@ def save_jobs(db: Session, jobs: List[JobDetail]) -> bool:
                 created_at=job.created_at
             )
             db.add(new_job)
+            db.flush()
+            db.refresh(new_job)
             new_jobs.append(new_job)
             redis_client.set(f"job_url:{job.url}", "1", ex=86400)
         print(f"new_jobs: {new_jobs}")
@@ -185,13 +187,15 @@ def publish_new_jobs(jobs: List[Job], redis_client: RedisClient):
     try:
         for job in jobs:
             job_data = {
+                'id': job.id,
                 "title": job.title,
                 "employer": job.employer,
                 "location": job.location,
                 "salary": job.salary,
                 "content": job.content,
                 "url": job.url,
-                "time": job.time
+                "time": job.time,
+                "created_at": job.created_at.isoformat()
             }
             redis_client.publish('new_job', json.dumps(job_data))
     except Exception as e:
