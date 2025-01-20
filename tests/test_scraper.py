@@ -26,16 +26,17 @@ def test_publish_new_jobs(jobs):
     try:
         for job in jobs:
             job_data = {
+                "id": job.id,
                 "title": job.title,
                 "employer": job.employer,
                 "location": job.location,
                 "salary": job.salary,
                 "content": job.content,
                 "url": job.url,
-                "time": job.job_time
+                "time": job.time,
+                "created_at": job.created_at.isoformat()
             }
             redis_client.publish('new_jobs', json.dumps(job_data))
-            logger.info(f"Published job: {job.title}")
             
     except Exception as e:
         logger.error(f"Redis publish error: {str(e)}")
@@ -53,9 +54,10 @@ async def main():
             return
 
         job_repo = JobRepository(db)
-        if job_repo.save_jobs(jobs):
+        saved_jobs = job_repo.save_jobs(jobs)
+        if saved_jobs:
             logger.info(f"Successfully saved {len(jobs)} new jobs")
-            test_publish_new_jobs(jobs)
+            test_publish_new_jobs(saved_jobs)
         else:
             logger.info("No new jobs to save")
             

@@ -45,8 +45,8 @@ def subscribe(channel: str, message_handler):
         for message in pubsub.listen():
             if message['type'] == 'message':
                 try:
-                    update_latest_jobs_cache(message['data'])
                     data = json.loads(message['data'])
+                    update_latest_jobs_cache(data)
                     logger.info(f"receive new job: {data['title']}")
                     async def run_handler():
                         await message_handler(data)

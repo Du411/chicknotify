@@ -3,16 +3,16 @@ from typing import List
 from app.models.jobs import Job
 from app.services.scraper_service import JobDetail
 
-
 class JobRepository:
     def __init__(self, db: Session):
         self.db = db
 
     def save_jobs(self, jobs: List[JobDetail]) -> bool:
+        new_jobs = []
         for job in jobs:
             existing_job = self.db.query(Job).filter(Job.url == job.url).first()
             if existing_job:
-                return False
+                continue
             new_job = Job(
                 title=job.title,
                 employer=job.employer,
@@ -24,6 +24,12 @@ class JobRepository:
                 created_at=job.created_at,
             )
             self.db.add(new_job)
+            self.db.flush()
+            self.db.refresh(new_job)
+            new_jobs.append(new_job)
 
-        self.db.commit()
-        return True
+        if new_jobs:
+            self.db.commit()
+            return new_jobs
+        else:
+            return None

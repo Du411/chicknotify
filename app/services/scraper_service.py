@@ -9,6 +9,7 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class JobDetail(BaseModel):
+    id: Optional[int] = None
     title: str
     employer: str
     location: str
