@@ -5,7 +5,8 @@ A FastAPI-based backend service that scrapes newest job from chickpt.com and sen
 ## System Architecture
 
 ### 1. Job Scraping (AWS Lambda)
-- Periodic web scraping from chickpt.com using BeautifulSoup
+- AWS EventBridge scheduled trigger (1 minute intervals)
+- Web scraping from chickpt.com using BeautifulSoup
 - Job data extraction and normalization
 - Redis pub/sub for real-time job notifications
 
@@ -60,26 +61,26 @@ A FastAPI-based backend service that scrapes newest job from chickpt.com and sen
 
 #### `/app`
 Main application directory containing:
-- `models/` - SQLAlchemy database models
-- `services/` - Business logic and core services
-- `routers/` - FastAPI route handlers
-- `schemas/` - Pydantic data models
-- `dependencies/` - FastAPI dependencies
-- `db/` - Database configuration
+- `/core` - Core configuration and utilities
+- `/dependencies` - FastAPI dependencies
+- `/models` - SQLAlchemy database models
+- `/routers` - FastAPI route handlers
+- `/schemas` - Pydantic data models
+- `/services` - Business logic and core services
 
-### `/alembic`
+Note: The `/repositories` directory contains test-related code and is not part of the prod application structure.
+
+#### `/alembic`
 Database migration configuration
 
-#### `lambda_function`
+#### `lambda_function.zip`
 AWS Lambda function package for job scraping
 
 
 Docker-related configurations:
 - `Dockerfile` - Container build instructions
-- `docker-compose.yml` - Multi-container setup for:
+- `docker-compose.yml` - container setup for:
   - FastAPI application
-  - PostgreSQL database
-  - Redis Server
 
 ## Getting Started
 
