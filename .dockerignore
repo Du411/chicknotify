@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.vscode/
+pycache/
+package_for_aws_lambda/
+lambda_function.py
+package.zip
+lambda_function.zip
+redis/
+README.md
