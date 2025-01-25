@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import users, subscriptions, jobs, notifications
+from app.routers import users, subscriptions, jobs, notifications, health
 from app.dependencies.database import get_db
 from app.dependencies.redis import get_redis, close_connection, subscribe
 from app.services.notification_service import NotificationService
@@ -50,3 +50,4 @@ app.include_router(users.router, tags=["users"])
 app.include_router(subscriptions.router, tags=["keywords"])
 app.include_router(jobs.router, tags=["jobs"])
 app.include_router(notifications.router, tags=["notifications"])
+app.include_router(health.router, tags=["health"])
