@@ -36,7 +36,7 @@ def test_publish_new_jobs(jobs):
                 "time": job.time,
                 "created_at": job.created_at.isoformat()
             }
-            redis_client.publish('new_jobs', json.dumps(job_data))
+            redis_client.publish('new_job', json.dumps(job_data))
             
     except Exception as e:
         logger.error(f"Redis publish error: {str(e)}")
