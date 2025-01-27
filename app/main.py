@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
     task = asyncio.create_task(
         asyncio.to_thread(
             subscribe,
-            'new_jobs',
+            'new_job',
             notification_service.process_job
         )
     )
