@@ -130,6 +130,13 @@ class UserService:
         )
 
     async def delete_user(self, user_id: int) -> dict:
+        user = self.db.query(User).filter(User.user_id == user_id).first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+
         try:
             self.db.query(UserSubscription).filter(
                 UserSubscription.user_id == user_id
@@ -137,14 +144,6 @@ class UserService:
             self.db.query(Notification).filter(
                 Notification.user_id == user_id
             ).delete()
-            
-            user = self.db.query(User).filter(User.user_id == user_id).first()
-            if not user:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="User not found"
-                )
-            
             self.db.delete(user)
             self.db.commit()
             
