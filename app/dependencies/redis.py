@@ -1,5 +1,6 @@
 import json
 import asyncio
+import time
 from redis import Redis, ConnectionPool
 from app.core.config import settings
 from app.core.logger import logger
@@ -38,24 +39,27 @@ def update_latest_jobs_cache(new_job_data: dict, max_jobs: int = 10):
         logger.error(f"Error updating cache: {str(e)}")
 
 def subscribe(channel: str, message_handler):
-    try:
-        pubsub = redis_client.pubsub()
-        pubsub.subscribe(channel)
-
-        for message in pubsub.listen():
-            if message['type'] == 'message':
-                try:
-                    data = json.loads(message['data'])
-                    update_latest_jobs_cache(data)
-                    logger.info(f"receive new job: {data['title']}")
-
-                    asyncio.run(message_handler(data))
-
-                except Exception as e:
-                    logger.error(f"Error processing message: {e}")
-
-    except Exception as e:
-        logger.error(f"Redis subscribe error: {str(e)}")
+   while True:
+       try:
+           pubsub = redis_client.pubsub()
+           pubsub.subscribe(channel)
+           logger.info(f"Successfully subscribed to channel: {channel}")
+           
+           for message in pubsub.listen():
+               if message['type'] == 'message':
+                   try:
+                       data = json.loads(message['data'])
+                       update_latest_jobs_cache(data)
+                       logger.info(f"receive new job: {data['title']}")
+                       
+                       asyncio.run(message_handler(data))
+                   except Exception as e:
+                       logger.error(f"Error processing message: {e}")
+                       
+       except Exception as e:
+           logger.error(f"Redis subscribe error: {str(e)}")
+           logger.info("Attempting to reconnect in 5 seconds...")
+           time.sleep(5)
 
 def close_connection():
     pool.close()
